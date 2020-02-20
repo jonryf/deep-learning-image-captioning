@@ -4,76 +4,24 @@ import torchvision
 
 class RNN50(nn.Module):
 
-    def __init__(self, n_class):
+    def __init__(self, vocab_size):
         super().__init__()
-        # VGG11 output architecture:
-        # conv3-64-1
-        # max 2x2-2
-        # conv3-128-1
-        # max 2x2-2
-        # conv3-256-1
-        # conv3-256-1
-        # max 2x2-2
-        # conv3-512-1
-        # conv3-512-1
-        # max 2x2-2
-        # conv3-512-1
-        # conv3-512-1
-        # max 2x2-2
-        # --------
-        # FC-4096
-        # FC-4096
-        # FC-1000
-        # soft-max
+        # don't freeze params cause we want to fine-tune
         mod = torchvision.models.resnet50(pretrained=True)
-        # take only the feature portion of the model (no avg pool or classification)
-        self.mod = mod.features
-        # freeze pre-trained layers
-        # for param in self.mod.parameters():
-            # param.requires_grad = False
-        self.n_class = n_class
-        self.fc = nn.Linear(512, 1000)
-        # self.bnd1 = nn.BatchNorm2d(512)
-        self.relu = nn.ReLU(inplace=True)
-
-
-        # Decoder portion
-        self.deconv1 = nn.ConvTranspose2d(512, 512, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1)
-        self.bn1 = nn.BatchNorm2d(512)
-        self.deconv2 = nn.ConvTranspose2d(512, 256, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1)
-        self.bn2 = nn.BatchNorm2d(256)
-        self.deconv3 = nn.ConvTranspose2d(256, 128, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1)
-        self.bn3 = nn.BatchNorm2d(128)
-        self.deconv4 = nn.ConvTranspose2d(128, 64, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1)
-        self.bn4 = nn.BatchNorm2d(64)
-        self.deconv5 = nn.ConvTranspose2d(64, 32, kernel_size=3, stride=2, padding=1, dilation=1, output_padding=1)
-        self.bn5 = nn.BatchNorm2d(32)
-        self.classifier = nn.Conv2d(32, self.n_class, kernel_size=1)
+        # take only the feature portions of the model (no avg pool or classification)
+        self.vs = vocab_size
+        #overwrite the fc layer
+        self.mod.fc = nn.Linear(2048, self.vs)
 
     def forward(self, x):
         out_encoder = self.mod
-
         out_decoder = nn.Sequential(
-            self.deconv1,
-            self.bn1,
-            self.relu,
-            self.deconv2,
-            self.bn2,
-            self.relu,
-            self.deconv3,
-            self.bn3,
-            self.relu,
-            self.deconv4,
-            self.bn4,
-            self.relu,
-            self.deconv5,
-            self.bn5,
-            self.relu
+
         )
 
         encoded = out_encoder(x)
         decoded = out_decoder(encoded)
 
         score = self.classifier(decoded)
-
-        return score  # size=(N, n_class, x.H/1, x.W/1)
+        # size=(N, n_class, x.H/1, x.W/1)
+        return score
