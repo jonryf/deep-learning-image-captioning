@@ -1,0 +1,5 @@
+EPOCHS = 50
+LSTM = True  # RNN or LSTM
+TEMPERATURE = 1
+
+
