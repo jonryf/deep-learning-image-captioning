@@ -2,42 +2,44 @@ from torch.nn import NLLLoss
 from torch.optim import Adam
 
 from settings import EPOCHS
+from torch.nn.utils.rnn import pack_padded_sequence
 
 
 class Runner:
 
-    def __init__(self, model, train_dataset):
-        self.model = model
+    def __init__(self, encoder, decoder, train_dataset):
+        self.encoder = encoder
+        self.decoder = decoder
         self.train_dataset = train_dataset
 
     def train(self):
-        self.model.train()
+        self.encoder.train()
+        self.decoder.train()
 
         criterion = NLLLoss()
-        optimizer = Adam()
+
+        params = list(self.decoder.parameters()) + list(self.encoder.parameters())
+        optimizer = Adam(params)
+
+        train_loss = 0
 
         for epoch in range(EPOCHS):
-            # Reset state
+            for minibatch, (images, captions, lengths) in enumerate(self.train_dataset):
+                targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
 
-            self.model.init_state()
+                # forward
+                encoded = self.encoder(images)
+                predicted = self.decoder(encoded)
 
-            for minibatch, (image, caption) in enumerate(self.train_dataset):
-
-                # encoder
-
-                # decoder
-
-                pass
-
-
-
-
-
+                # backward
+                batch_loss = criterion(predicted, targets.long())
+                self.encoder.zero_grad()
+                self.decoder.zero_grad()
+                batch_loss.backward()
+                optimizer.step()
 
     def val(self):
         pass
 
     def test(self):
         pass
-
-
