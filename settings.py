@@ -4,7 +4,7 @@ TEMPERATURE = 1
 BATCH_SIZE = 1
 SHUFFLE_DATA = True
 NUM_WORKERS = 1
-ROOT = "./"
-ROOT
+IMAGES_DIR = "/data/images/"
+CAPTIONS_DIR = "/data/annotations/"
 
 
