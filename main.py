@@ -14,11 +14,11 @@ from runner import Runner
 from settings import BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS, ROOT
 from evaluate_captions import evaluate_captions
 def show_options():
-    print("(1): print size of vocabulary")
-    print("(2): print size of vocabulary")
-    print("(3): print size of vocabulary")
-    print("(4): print size of vocabulary")
-    print("(5): print size of vocabulary")
+    print("(1): training and validation loss for LSTM and Vanilla RNN")
+    print("(2): Cross Entropy and Perplexity score on test set")
+    print("(3): BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN")
+    print("(4): Experiment with Temperatures")
+    print("(5): Pre=trained word embeddings")
     print("(q): quit program")
 
 def task_4_1(): # training and validation loss for LSTM and Vanilla RNN
@@ -40,9 +40,9 @@ def task_4_3(): # BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN
     print("BLEU-1 Score:", b1)
     print("BLEU-4 Score:", b4)
 
-def task_4_4():
+def task_4_4(): # Experiment with temperatures
     pass
-def task_4_5():
+def task_4_5(): # Pre-trained word embeddings
     pass
 
 if __name__ == "__main__":
