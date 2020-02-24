@@ -29,7 +29,7 @@ class Encoder(nn.Module):
 
 class Decoder(nn.Module):
 
-    def __init__(self, encoder, input_size, hidden_size, embedding_size, LSTM=True):
+    def __init__(self, input_size, hidden_size, vocabulary_size, LSTM=True):
         """
         Initialize decoder
 
@@ -38,11 +38,10 @@ class Decoder(nn.Module):
         :param LSTM:
         """
         super(Decoder, self).__init__()
-        self.encoder = encoder
-        self.inputs_size = input_size
+        self.input_size = input_size
         self.hidden_size = hidden_size
         self.LSTM = LSTM
-        self.embedding = nn.Embedding(input_size, embedding_size)
+        self.embedding = nn.Embedding(vocabulary_size, input_size)
 
         # Model layout
         if LSTM:

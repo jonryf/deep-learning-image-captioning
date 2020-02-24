@@ -1,46 +1,27 @@
-import torch
-import torchvision.transforms as transforms
-import torch.utils.data as data
-import os
-import pickle
-import numpy as np
-import nltk
-from PIL import Image
-from build_vocab import Vocabulary
-from pycocotools.coco import COCO
 from data_loader import get_loader
-
-def vocab_size():
-    data = CocoDataset
-    print(data.vocab)
-
-def train_baseline():
-    pass
-
-def train_vanilla():
-    # initialize model
-    # get data
-    # training loop
-    # generate captions and save to file
-    # plot training/validation error
-    # save best model
-    #
-    pass
-
+from models import Encoder, Decoder
+from runner import Runner
+from settings import BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS, ROOT
 
 if __name__ == "__main__":
     # load data and transform images
 
-    batch_size = 1
-    shuffle = True
-    num_workers = 1
-    loader = get_loader(root, json, ids, vocab, transform, batch_size, shuffle, num_workers)
+    train_dataset = get_loader(ROOT, "train2014", ids, vocab, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
+    val_dataset = get_loader(ROOT, "train2014", ids, vocab, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
+    test_dataset = get_loader(ROOT, "train2014", ids, vocab, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
 
-    # main UI loop
-    i = ""
-    while i != 'q':
-        print("(s): print size of vocabulary")
-        i = input("Please select your task: ")
-        i = i.lower()
-        if i == "s":
-            vocab_size()
+    encoder = Encoder(2048)
+    decoder = Decoder(2048, 1024, -1)
+
+    runner = Runner(encoder, decoder, train_dataset, val_dataset, test_dataset)
+
+    runner.train()
+
+    # # main UI loop
+    # i = ""
+    # while i != 'q':
+    #     print("(s): print size of vocabulary")
+    #     i = input("Please select your task: ")
+    #     i = i.lower()
+    #     if i == "s":
+    #         vocab_size()
