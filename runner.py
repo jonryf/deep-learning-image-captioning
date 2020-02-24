@@ -24,6 +24,7 @@ class Runner:
         for epoch in range(EPOCHS):
             train_loss = self.pass_data(self.train_dataset, True)
             val_loss = self.pass_data(self.val_dataset, False)
+
             print("Epoch: {}  -  training loss: {}, validation loss: {}".format(epoch, train_loss, val_loss))
 
     def val(self):

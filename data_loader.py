@@ -6,13 +6,13 @@ import pickle
 import numpy as np
 import nltk
 from PIL import Image
-from build_vocab import Vocabulary
+import build_vocab
 from pycocotools.coco import COCO
 
 
 class CocoDataset(data.Dataset):
     """COCO Custom Dataset compatible with torch.utils.data.DataLoader."""
-    def __init__(self, root, json, ids, vocab):
+    def __init__(self, root, json, ids, vocab, vocabThreshold=10):
         """Set the path for images, captions and vocabulary wrapper.
         
         Args:
@@ -24,7 +24,7 @@ class CocoDataset(data.Dataset):
         self.root = root
         self.coco = COCO(json)
         self.ids = ids
-        self.vocab = vocab
+        self.vocab = build_vocab(json, vocabThreshold)
         self.transform = transforms.Compose([
             transforms.Resize(512),
             transforms.RandomCrop((512, 512), pad_if_needed=True),

@@ -17,3 +17,7 @@ def softmax(x, temp=1.0):
     sM[torch.where(sM == 1)] = 0.9999999
     return sM
 
+
+
+def bleu_score():
+    pass
