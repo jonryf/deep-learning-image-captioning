@@ -17,3 +17,12 @@ def softmax(x, temp=1.0):
     sM[torch.where(sM == 1)] = 0.9999999
     return sM
 
+# draw one sample from distribution defined by rows in x
+# if deterministic then returns max prob idx
+def sampleFromDistribution(x, deterministic=True):
+    # if deterministic then return max for each row
+    if deterministic:
+        return torch.argmax(x, axis=1)
+
+    sampler = torch.distributions.categorical.Categorical(probs=x)
+    return sampler.sample()
