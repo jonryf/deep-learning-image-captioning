@@ -1,15 +1,3 @@
-import pickle
-
-import torch
-import torchvision.transforms as transforms
-import torch.utils.data as data
-import os
-import pickle
-import numpy as np
-import nltk
-from PIL import Image
-from build_vocab import Vocabulary
-from pycocotools.coco import COCO
 from data_loader import get_loader
 from models import Encoder, Decoder
 from runner import Runner
