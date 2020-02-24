@@ -8,7 +8,7 @@ import nltk
 from PIL import Image
 from build_vocab import Vocabulary
 from pycocotools.coco import COCO
-from data_loader import CocoDataset
+from data_loader import get_loader
 
 def vocab_size():
     data = CocoDataset
@@ -29,6 +29,14 @@ def train_vanilla():
 
 
 if __name__ == "__main__":
+    # load data and transform images
+
+    batch_size = 1
+    shuffle = True
+    num_workers = 1
+    loader = get_loader(root, json, ids, vocab, transform, batch_size, shuffle, num_workers)
+
+    # main UI loop
     i = ""
     while i != 'q':
         print("(s): print size of vocabulary")

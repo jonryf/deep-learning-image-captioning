@@ -16,3 +16,4 @@ def softmax(x, temp=1.0):
     sM[torch.where(sM == 0)] = 0.0000001
     sM[torch.where(sM == 1)] = 0.9999999
     return sM
+
