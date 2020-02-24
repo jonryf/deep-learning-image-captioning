@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 
 from torch.nn import NLLLoss
@@ -5,6 +6,8 @@ from torch.optim import Adam
 
 from settings import EPOCHS
 from torch.nn.utils.rnn import pack_padded_sequence
+
+from utils import plot_graph
 
 
 class Runner:
@@ -16,15 +19,26 @@ class Runner:
         self.val_dataset = val_dataset
         self.test_dataset = test_dataset
         self.criterion = NLLLoss()
+        self.training_data = []
 
         params = list(self.decoder.parameters()) + list(self.encoder.parameters())
         self.optimizer = Adam(params)
+
+    def plot_training_data(self):
+        self.training_data = np.array(self.training_data).T
+        plot_graph(self.training_data, ["Epoch", "Cross-entropy-loss"], ["Training loss", "Validation loss"],
+                   "Loss over epochs")
 
     def train(self):
         for epoch in range(EPOCHS):
             train_loss = self.pass_data(self.train_dataset, True)
             val_loss = self.pass_data(self.val_dataset, False)
+
+            self.training_data.append([train_loss, val_loss])
+
             print("Epoch: {}  -  training loss: {}, validation loss: {}".format(epoch, train_loss, val_loss))
+
+        self.plot_training_data()
 
     def val(self):
         with torch.no_grad():

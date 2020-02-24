@@ -6,13 +6,14 @@ import pickle
 import numpy as np
 import nltk
 from PIL import Image
-import build_vocab
+from build_vocab import build_vocab
 from pycocotools.coco import COCO
 
 
 class CocoDataset(data.Dataset):
     """COCO Custom Dataset compatible with torch.utils.data.DataLoader."""
-    def __init__(self, root, json, ids, vocab, vocabThreshold=10):
+
+    def __init__(self, root, ids, json, vocabThreshold=10):
         """Set the path for images, captions and vocabulary wrapper.
         
         Args:
@@ -23,15 +24,14 @@ class CocoDataset(data.Dataset):
         """
         self.root = root
         self.coco = COCO(json)
-        self.ids = ids
         self.vocab = build_vocab(json, vocabThreshold)
+        self.ids = ids
         self.transform = transforms.Compose([
             transforms.Resize(512),
             transforms.RandomCrop((512, 512), pad_if_needed=True),
             transforms.ToTensor(),
             transforms.Normalize((0.485, 0.456, 0.406),
-                             (0.229, 0.224, 0.225))])
-
+                                 (0.229, 0.224, 0.225))])
 
     def __getitem__(self, index):
         """Returns one data pair (image and caption)."""
@@ -44,9 +44,8 @@ class CocoDataset(data.Dataset):
 
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
         # if self.transform is not None:
-            # image = self.transform(image)
+        # image = self.transform(image)
         # resize image
-
 
         # Convert caption (string) to word ids.
         tokens = nltk.tokenize.word_tokenize(str(caption).lower())
@@ -89,24 +88,22 @@ def collate_fn(data):
     targets = torch.zeros(len(captions), max(lengths)).long()
     for i, cap in enumerate(captions):
         end = lengths[i]
-        targets[i, :end] = cap[:end]        
+        targets[i, :end] = cap[:end]
     return images, targets, lengths
 
-def get_loader(root, json, ids, vocab, transform, batch_size, shuffle, num_workers):
+
+def get_loader(root, json, ids, batch_size, shuffle, num_workers):
     """Returns torch.utils.data.DataLoader for custom coco dataset."""
     # COCO caption dataset
-    coco = CocoDataset(root=root,
-                       json=json,
-                       ids = ids,
-                       vocab=vocab,
-                       transform=transform)
-    
+    coco = CocoDataset(root=root, ids=ids,
+                       json=json)
+
     # Data loader for COCO dataset
     # This will return (images, captions, lengths) for each iteration.
     # images: a tensor of shape (batch_size, 3, 224, 224).
     # captions: a tensor of shape (batch_size, padded_length).
     # lengths: a list indicating valid length for each caption. length is (batch_size).
-    data_loader = torch.utils.data.DataLoader(dataset=coco, 
+    data_loader = torch.utils.data.DataLoader(dataset=coco,
                                               batch_size=batch_size,
                                               shuffle=shuffle,
                                               num_workers=num_workers,
