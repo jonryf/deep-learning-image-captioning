@@ -46,9 +46,9 @@ class Decoder(nn.Module):
 
         # Model layout
         if LSTM:
-            self.rnn_cell = nn.LSTMCell(input_size, hidden_size)
+            self.rnn_cell = nn.LSTM(input_size, hidden_size)
         else:
-            self.rnn_cell = nn.RNNCell(input_size, hidden_size)
+            self.rnn_cell = nn.RNN(input_size, hidden_size)
 
         self.softmax_function = nn.Softmax()
         self.hidden = None
