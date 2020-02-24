@@ -43,8 +43,8 @@ class CocoDataset(data.Dataset):
         path = coco.loadImgs(img_id)[0]['file_name']
 
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
-        # if self.transform is not None:
-        # image = self.transform(image)
+        if self.transform is not None:
+            image = self.transform(image)
         # resize image
 
         # Convert caption (string) to word ids.

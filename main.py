@@ -16,7 +16,7 @@ def process_csv(train=True):
     df = np.array(df)
     print("Training set = ", train)
     print("# Images: ", df.size)
-    return np.array(df)
+    return np.array(df).tolist()
 
 
 def show_options():
@@ -34,9 +34,9 @@ def task_4_1(): # training and validation loss for LSTM and Vanilla RNN
     testing_ids = process_csv(False)
 
     # load data and transform images
-    train_dataset = get_loader(IMAGES_DIR + "/train/", CAPTIONS_DIR + "/train/", BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
-    val_dataset = get_loader(IMAGES_DIR + "/val/", CAPTIONS_DIR + "/val/", BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
-    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/test/", BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
+    train_dataset = get_loader(IMAGES_DIR + "/train/", CAPTIONS_DIR + "/train/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
+    val_dataset = get_loader(IMAGES_DIR + "/val/", CAPTIONS_DIR + "/val/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
+    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/test/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
 
     encoder = Encoder(2048)
     decoder = Decoder(2048, 1024, len(train_dataset.dataset.vocab.word2idx))
