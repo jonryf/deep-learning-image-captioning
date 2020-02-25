@@ -1,22 +1,24 @@
 from data_loader import get_loader
 from models import Encoder, Decoder
 from runner import Runner
-from settings import BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS, IMAGES_DIR, CAPTIONS_DIR
+from settings import BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS, IMAGES_DIR, CAPTIONS_DIR, VALIDATION_SIZE, LSTM_HIDDEN_SIZE, \
+    EMBEDDED_SIZE
 from evaluate_captions import evaluate_captions
 import pandas
 import numpy as np
 
+from utils import select_ann_ids, load_image_ids, load_datasets
 
-def process_csv(train=True):
-    if train:
-        path = './TrainImageIds.csv'
-    else:
-        path = './TestImageIds.csv'
-    df = pandas.read_csv(path, header=None)
-    df = np.array(df)
-    print("Training set = ", train)
-    print("# Images: ", df.size)
-    return np.array(df).tolist()
+
+def run():
+    train_dataset, val_dataset, test_dataset = load_datasets()
+    vocabulary_size = len(train_dataset.dataset.vocab.word2idx)
+
+    encoder = Encoder(EMBEDDED_SIZE)
+    decoder = Decoder(EMBEDDED_SIZE, LSTM_HIDDEN_SIZE, vocabulary_size)
+
+    runner = Runner(encoder, decoder, train_dataset, val_dataset, test_dataset)
+    runner.train()
 
 
 def show_options():
@@ -28,47 +30,36 @@ def show_options():
     print("(q): quit program")
 
 
-def task_4_1(): # training and validation loss for LSTM and Vanilla RNN
-
-    training_ids = process_csv(True)
-    testing_ids = process_csv(False)
-
-    # load data and transform images
-    train_dataset = get_loader(IMAGES_DIR + "/train/", CAPTIONS_DIR + "/train/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
-    val_dataset = get_loader(IMAGES_DIR + "/val/", CAPTIONS_DIR + "/val/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
-    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/test/", training_ids, BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS)
-
-    encoder = Encoder(2048)
-    decoder = Decoder(2048, 1024, len(train_dataset.dataset.vocab.word2idx))
-
-    runner = Runner(encoder, decoder, train_dataset, val_dataset, test_dataset)
-
-    runner.train()
-def task_4_2(): # Cross Entropy and Perplexity score on test set
+def task_4_1():  # training and validation loss for LSTM and Vanilla RNN
+    EMBEDDED_SIZE = 5
     pass
 
 
-def task_4_3(): # BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN
+def task_4_2():  # Cross Entropy and Perplexity score on test set
+    pass
+
+
+def task_4_3():  # BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN
     true_captions_path = './'
 
     print("Scoring Deterministic LSTM")
-    deterministic_LSTM_captions_path = './' # deterministic generation
+    deterministic_LSTM_captions_path = './'  # deterministic generation
     b1, b4 = evaluate_captions(true_captions_path, deterministic_LSTM_captions_path)
     print("BLEU-1 Score:", b1)
     print("BLEU-4 Score:", b4)
 
     print("Scoring Deterministic Vanilla RNN")
-    deterministic_vanilla_captions_path = './' # deterministic generation
+    deterministic_vanilla_captions_path = './'  # deterministic generation
     b1, b4 = evaluate_captions(true_captions_path, deterministic_vanilla_captions_path)
     print("BLEU-1 Score:", b1)
     print("BLEU-4 Score:", b4)
 
 
-def task_4_4(): # Experiment with temperatures
+def task_4_4():  # Experiment with temperatures
     pass
 
 
-def task_4_5(): # Pre-trained word embeddings
+def task_4_5():  # Pre-trained word embeddings
     pass
 
 
@@ -94,3 +85,4 @@ if __name__ == "__main__":
 
         elif i == "5":
             task_4_5()
+        run()

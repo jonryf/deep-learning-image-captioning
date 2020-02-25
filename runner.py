@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 
 from torch.nn import NLLLoss
@@ -6,13 +5,23 @@ from torch.optim import Adam
 
 from settings import EPOCHS
 from torch.nn.utils.rnn import pack_padded_sequence
+from tqdm import tqdm
 
-from utils import plot_graph
+from utils import plot_training_data
 
 
 class Runner:
 
     def __init__(self, encoder, decoder, train_dataset, val_dataset, test_dataset):
+        """
+        Runner for training, validation and testing a the network
+
+        :param encoder: CNN encoder
+        :param decoder: LSTM decoder
+        :param train_dataset: the training dataset
+        :param val_dataset: validation dataset
+        :param test_dataset: test dataset
+        """
         self.encoder = encoder
         self.decoder = decoder
         self.train_dataset = train_dataset
@@ -24,13 +33,11 @@ class Runner:
         params = list(self.decoder.parameters()) + list(self.encoder.parameters())
         self.optimizer = Adam(params)
 
-    def plot_training_data(self):
-        self.training_data = np.array(self.training_data).T
-        plot_graph(self.training_data, ["Epoch", "Cross-entropy-loss"], ["Training loss", "Validation loss"],
-                   "Loss over epochs")
-
     def train(self):
-        for epoch in range(EPOCHS):
+        """
+        Train the network
+        """
+        for epoch in tqdm(range(EPOCHS)):
             train_loss = self.pass_data(self.train_dataset, True)
             val_loss = self.pass_data(self.val_dataset, False)
 
@@ -38,17 +45,34 @@ class Runner:
 
             print("Epoch: {}  -  training loss: {}, validation loss: {}".format(epoch, train_loss, val_loss))
 
-        self.plot_training_data()
+        plot_training_data(self.training_data)
 
     def val(self):
+        """
+        Run validation
+
+        :return: loss
+        """
         with torch.no_grad():
             return self.pass_data(self.val_dataset, False)
 
     def test(self):
+        """
+        Run test set
+
+        :return: loss
+        """
         with torch.no_grad():
             return self.pass_data(self.test_dataset, False)
 
     def pass_data(self, dataset, backward):
+        """
+        Combined loop for training and data prediction, returns loss.
+
+        :param dataset: dataset to do data passing from
+        :param backward: if backward propagation should be used
+        :return: loss
+        """
         if backward:
             self.encoder.train()
             self.decoder.train()
@@ -62,7 +86,7 @@ class Runner:
 
             # forward
             encoded = self.encoder(images)
-            predicted = self.decoder(encoded)
+            predicted = self.decoder(encoded, captions, lengths)
 
             batch_loss = self.criterion(predicted, targets.long())
 
