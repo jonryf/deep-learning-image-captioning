@@ -2,8 +2,7 @@ import torch
 import torchvision.transforms as transforms
 import torch.utils.data as data
 import os
-import pickle
-import numpy as np
+
 import nltk
 from PIL import Image
 from build_vocab import build_vocab
@@ -43,8 +42,8 @@ class CocoDataset(data.Dataset):
         path = coco.loadImgs(img_id)[0]['file_name']
 
         image = Image.open(os.path.join(self.root, path)).convert('RGB')
-        # if self.transform is not None:
-        # image = self.transform(image)
+        if self.transform is not None:
+            image = self.transform(image)
         # resize image
 
         # Convert caption (string) to word ids.
