@@ -3,15 +3,17 @@ from Encoder import Encoder
 from evaluate_captions import evaluate_captions
 from runner import Runner
 from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
-from utils import load_datasets
+from utils import load_datasets, get_device
 
 
 def run_network():
     train_dataset, val_dataset, test_dataset = load_datasets()
     vocabulary_size = len(train_dataset.dataset.vocab.word2idx)
 
-    encoder = Encoder(EMBEDDED_SIZE)
-    decoder = Decoder(EMBEDDED_SIZE, LSTM_HIDDEN_SIZE, vocabulary_size)
+    computing_device = get_device()
+
+    encoder = Encoder(EMBEDDED_SIZE).to(computing_device)
+    decoder = Decoder(EMBEDDED_SIZE, LSTM_HIDDEN_SIZE, vocabulary_size).to(computing_device)
 
     runner = Runner(encoder, decoder, train_dataset, val_dataset, test_dataset)
     runner.train()

@@ -26,11 +26,9 @@ class CocoDataset(data.Dataset):
         self.vocab = build_vocab(json, vocabThreshold)
         self.ids = ids
         self.transform = transforms.Compose([
-            transforms.Resize(512),
-            transforms.RandomCrop((512, 512), pad_if_needed=True),
-            transforms.ToTensor(),
-            transforms.Normalize((0.485, 0.456, 0.406),
-                                 (0.229, 0.224, 0.225))])
+            transforms.Resize(254),
+            transforms.RandomCrop((254, 254), pad_if_needed=True),
+            transforms.ToTensor()])
 
     def __getitem__(self, index):
         """Returns one data pair (image and caption)."""

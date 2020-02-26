@@ -64,10 +64,10 @@ class Decoder(nn.Module):
             features, cell_state = self.rnn_cell(features,  cell_state)
 
             # decode embedding
-            features = self.linear(features)  # batch vs vocab
+            features = self.linear(features.squeeze(1))  # batch vs vocab
 
-            # select max value
-            features = sampleFromDistribution(softmax(features), True)
+            # select value from distribution with temperature
+            features = features.max(1)[1]  # sampleFromDistribution(softmax(features), True)
 
             # save caption words
             captions.append(features)
@@ -75,4 +75,4 @@ class Decoder(nn.Module):
             # embed word
             features = self.embedding(features)
 
-        return torch.FloatTensor(captions)
+        return torch.cat(captions).squeeze(1)
