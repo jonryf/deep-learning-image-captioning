@@ -1,16 +1,12 @@
-from data_loader import get_loader
-from models import Encoder, Decoder
-from runner import Runner
-from settings import BATCH_SIZE, SHUFFLE_DATA, NUM_WORKERS, IMAGES_DIR, CAPTIONS_DIR, VALIDATION_SIZE, LSTM_HIDDEN_SIZE, \
-    EMBEDDED_SIZE
+from Decoder import Decoder
+from Encoder import Encoder
 from evaluate_captions import evaluate_captions
-import pandas
-import numpy as np
+from runner import Runner
+from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
+from utils import load_datasets
 
-from utils import select_ann_ids, load_image_ids, load_datasets
 
-
-def run():
+def run_network():
     train_dataset, val_dataset, test_dataset = load_datasets()
     vocabulary_size = len(train_dataset.dataset.vocab.word2idx)
 
@@ -30,16 +26,24 @@ def show_options():
     print("(q): quit program")
 
 
-def task_4_1():  # training and validation loss for LSTM and Vanilla RNN
-    EMBEDDED_SIZE = 5
+def task_4_1():
+    """
+    Training and validation loss for LSTM and Vanilla RNN
+    """
+    run_network()
+
+
+def task_4_2():
+    """
+    Cross Entropy and Perplexity score on test set
+    """
     pass
 
 
-def task_4_2():  # Cross Entropy and Perplexity score on test set
-    pass
-
-
-def task_4_3():  # BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN
+def task_4_3():
+    """
+    BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RNN
+    """
     true_captions_path = './'
 
     print("Scoring Deterministic LSTM")
@@ -55,7 +59,12 @@ def task_4_3():  # BLEU-1 and BLEU-4 scores on deterministic LSTM and Vanilla RN
     print("BLEU-4 Score:", b4)
 
 
-def task_4_4():  # Experiment with temperatures
+def task_4_4():
+    """
+    Experiment with temperatures
+    """
+    global TEMPERATURE
+    TEMPERATURE = 1
     pass
 
 
@@ -85,4 +94,3 @@ if __name__ == "__main__":
 
         elif i == "5":
             task_4_5()
-        run()

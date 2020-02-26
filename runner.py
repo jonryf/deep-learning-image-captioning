@@ -7,7 +7,7 @@ from settings import EPOCHS
 from torch.nn.utils.rnn import pack_padded_sequence
 from tqdm import tqdm
 
-from utils import plot_training_data
+from utils import plot_training_data, get_device
 
 
 class Runner:
@@ -82,12 +82,18 @@ class Runner:
         loss = 0
 
         for minibatch, (images, captions, lengths) in enumerate(dataset):
+            computing_device = get_device()
+            images.to(computing_device)
+            captions.to(computing_device)
+
             targets = pack_padded_sequence(captions, lengths, batch_first=True)[0]
 
             # forward
             encoded = self.encoder(images)
-            predicted = self.decoder(encoded, captions, lengths)
-
+            if backward:
+                predicted = self.decoder(encoded, captions, lengths)
+            else:
+                predicted = self.decoder.predict(encoded)
             batch_loss = self.criterion(predicted, targets.long())
 
             # backward

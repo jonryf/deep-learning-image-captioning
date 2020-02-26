@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pycocotools.coco import COCO
 
 from data_loader import get_loader
-from settings import CAPTIONS_DIR, IMAGES_DIR, NUM_WORKERS, SHUFFLE_DATA, BATCH_SIZE, VALIDATION_SIZE
+from settings import CAPTIONS_DIR, IMAGES_DIR, NUM_WORKERS, SHUFFLE_DATA, BATCH_SIZE, VALIDATION_SIZE, TEMPERATURE
 
 
 def get_device():
@@ -18,7 +18,7 @@ def get_device():
 
 # gets softmax of each row with temperature
 # subtracts max from every element in each row, keps ordering but plays with ratios of solutions
-def softmax(x, temp=1.0):
+def softmax(x, temp=TEMPERATURE):
     values = (((x.T - torch.max(x, axis=1)[0]).T) / temp).float()
     exp = torch.exp(values).float()
     sM = (exp.T / torch.sum(exp, axis=1)).T
@@ -107,8 +107,8 @@ def load_datasets():
     # Select ids
     training_ids = select_ann_ids(load_image_ids(True), "captions_train2014.json")
 
-    validation_ids = training_ids[:len(training_ids) * VALIDATION_SIZE]
-    training_ids = training_ids[len(training_ids) * VALIDATION_SIZE:]
+    validation_ids = training_ids[:int(len(training_ids) * VALIDATION_SIZE)]
+    training_ids = training_ids[int(len(training_ids) * VALIDATION_SIZE):]
     testing_ids = select_ann_ids(load_image_ids(False), "captions_val2014.json")
 
     # load data and transform images
