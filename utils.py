@@ -118,7 +118,7 @@ def load_datasets():
     val_dataset = get_loader(IMAGES_DIR + "/train/", CAPTIONS_DIR + "/captions_train2014.json", validation_ids,
                              BATCH_SIZE, SHUFFLE_DATA,
                              NUM_WORKERS)
-    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/captions_val2014.json/", testing_ids, BATCH_SIZE,
+    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/captions_val2014.json", testing_ids, BATCH_SIZE,
                               SHUFFLE_DATA,
                               NUM_WORKERS)
     return train_dataset, val_dataset, test_dataset
