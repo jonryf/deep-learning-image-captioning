@@ -7,12 +7,14 @@ from PIL import Image
 from build_vocab import build_vocab
 from pycocotools.coco import COCO
 from wordDict import *
+from settings import CAPTIONS_DIR, IMAGES_DIR, NUM_WORKERS, SHUFFLE_DATA, BATCH_SIZE, VALIDATION_SIZE, TEMPERATURE
 
+TrainingJsonPath = IMAGES_DIR + "/train/", CAPTIONS_DIR + "/captions_train2014.json"
 
 class CocoDataset(data.Dataset):
     """COCO Custom Dataset compatible with torch.utils.data.DataLoader."""
 
-    def __init__(self, root, ids, json, vocabThreshold=10):
+    def __init__(self, root, ids, json, vocabJson=TrainingJsonPath, vocabThreshold=10):
         """Set the path for images, captions and vocabulary wrapper.
         
         Args:
@@ -23,7 +25,7 @@ class CocoDataset(data.Dataset):
         """
         self.root = root
         self.coco = COCO(json)
-        self.vocab = getWordDict(json, vocabThreshold)
+        self.vocab = getWordDict(vocabJson, vocabThreshold)
         self.ids = ids
         self.transform = transforms.Compose([
             transforms.Resize(254),
