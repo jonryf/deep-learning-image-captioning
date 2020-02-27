@@ -94,6 +94,7 @@ class Runner:
             print("Running decoder")
             if backward:
                 predicted = self.decoder(encoded, captions, lengths)
+
             else:
                 predicted = self.decoder.predict(encoded)
             batch_loss = self.criterion(predicted, targets)
