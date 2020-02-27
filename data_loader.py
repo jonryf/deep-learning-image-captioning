@@ -2,11 +2,11 @@ import torch
 import torchvision.transforms as transforms
 import torch.utils.data as data
 import os
-
 import nltk
 from PIL import Image
 from build_vocab import build_vocab
 from pycocotools.coco import COCO
+from wordDict import *
 
 
 class CocoDataset(data.Dataset):
@@ -23,7 +23,7 @@ class CocoDataset(data.Dataset):
         """
         self.root = root
         self.coco = COCO(json)
-        self.vocab = build_vocab(json, vocabThreshold)
+        self.vocab = getWordDict(json, vocabThreshold)
         self.ids = ids
         self.transform = transforms.Compose([
             transforms.Resize(254),

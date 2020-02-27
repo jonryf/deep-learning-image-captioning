@@ -8,7 +8,7 @@ from utils import load_datasets, get_device
 
 def run_network():
     train_dataset, val_dataset, test_dataset = load_datasets()
-    vocabulary_size = len(train_dataset.dataset.vocab.word2idx)
+    vocabulary_size = len(train_dataset.dataset.vocab.wordToIndex)
 
     computing_device = get_device()
 
