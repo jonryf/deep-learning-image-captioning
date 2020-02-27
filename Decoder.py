@@ -24,9 +24,9 @@ class Decoder(nn.Module):
         self.embedding = nn.Embedding(vocabulary_size, input_size)
 
         if lstm:
-            self.rnn_cell = nn.LSTM(input_size, hidden_size)
+            self.rnn_cell = nn.LSTM(input_size, hidden_size, batch_first=True)
         else:
-            self.rnn_cell = nn.RNN(input_size, hidden_size)
+            self.rnn_cell = nn.RNN(input_size, hidden_size, batch_first=True)
 
         # linear decoding of the captions
         self.linear = nn.Linear(hidden_size, vocabulary_size)
@@ -55,13 +55,14 @@ class Decoder(nn.Module):
         self.hidden, self.cell = self.rnn_cell(combined)
 
         # Decode the encoded captions
-        return self.linear(self.hidden[0])
+        return self.linear(self.hidden.data)
 
     def predict(self, features, max_length):
         captions = []
-        cell_state = None
+        states = None
         for i in range(max_length):
-            features, cell_state = self.rnn_cell(features,  cell_state)
+            features = features.squeeze(1)
+            features, states = self.rnn_cell(features, states)
 
             # decode embedding
             features = self.linear(features.squeeze(1))  # batch vs vocab
@@ -69,10 +70,10 @@ class Decoder(nn.Module):
             # select value from distribution with temperature
             features = features.max(1)[1]  # sampleFromDistribution(softmax(features), True)
 
-            # save caption words
+            # save caption indices
             captions.append(features)
 
             # embed word
             features = self.embedding(features)
 
-        return torch.cat(captions).squeeze(1)
+        return torch.stack(captions, 1)
