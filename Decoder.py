@@ -59,9 +59,10 @@ class Decoder(nn.Module):
 
     def predict(self, features, max_length):
         captions = []
-        cell_state = None
+        states = None
         for i in range(max_length):
-            features, cell_state = self.rnn_cell(features,  cell_state)
+            features = features.squeeze(1)
+            features, states = self.rnn_cell(features, states)
 
             # decode embedding
             features = self.linear(features.squeeze(1))  # batch vs vocab
@@ -69,10 +70,10 @@ class Decoder(nn.Module):
             # select value from distribution with temperature
             features = features.max(1)[1]  # sampleFromDistribution(softmax(features), True)
 
-            # save caption words
+            # save caption indices
             captions.append(features)
 
             # embed word
             features = self.embedding(features)
 
-        return torch.cat(captions).squeeze(1)
+        return torch.stack(captions, 1)
