@@ -2,7 +2,7 @@ import torch
 from torch import nn as nn
 from torch.nn.utils.rnn import pack_padded_sequence
 
-from utils import sampleFromDistribution, softmax
+from utils import sample_from_distribution, softmax
 
 
 class Decoder(nn.Module):
@@ -57,7 +57,7 @@ class Decoder(nn.Module):
         # Decode the encoded captions
         return self.linear(self.hidden.data)
 
-    def predict(self, features, max_length):
+    def create_captions(self, features, max_length):
         captions = []
         states = None
         for i in range(max_length):
@@ -68,7 +68,7 @@ class Decoder(nn.Module):
             features = self.linear(features.squeeze(1))  # batch vs vocab
 
             # select value from distribution with temperature
-            features = features.max(1)[1]  # sampleFromDistribution(softmax(features), True)
+            features = sample_from_distribution(softmax(features), True)
 
             # save caption indices
             captions.append(features)
@@ -76,4 +76,9 @@ class Decoder(nn.Module):
             # embed word
             features = self.embedding(features)
 
-        return torch.stack(captions, 1)
+        tokenized_captions = torch.stack(captions, 1)
+        _, indices = torch.max(tokenized_captions, 1)
+        for sentence_ids in indices:
+            for word_id in sentence_ids:
+                pass
+

@@ -80,21 +80,17 @@ class Runner:
             self.decoder.eval()
         loss = 0
 
-        for minibatch, (images, captions, lengths) in enumerate(dataset):
+        for minibatch, (images, captions, lengths) in tqdm(enumerate(dataset)):
             computing_device = get_device()
             images = images.to(computing_device)
             captions = captions.to(computing_device)
-            print("Minibatch {}".format(minibatch))
             targets = pack_padded_sequence(captions, lengths, batch_first=True).data
-            print("Running encoder")
             # forward
             encoded = self.encoder(images)
-            print("Running decoder")
             predicted = self.decoder(encoded, captions, lengths)
 
             # predicted = self.decoder.predict(encoded)
             batch_loss = self.criterion(predicted, targets)
-            print("Running backward")
             # backward
             if backward:
                 self.encoder.zero_grad()

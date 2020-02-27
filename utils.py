@@ -28,7 +28,7 @@ def softmax(x, temp=TEMPERATURE):
 
 # draw one sample from distribution defined by rows in x
 # if deterministic then returns max prob idx
-def sampleFromDistribution(x, deterministic=True):
+def sample_from_distribution(x, deterministic=True):
     # if deterministic then return max for each row
     if deterministic:
         return torch.argmax(x, axis=1)

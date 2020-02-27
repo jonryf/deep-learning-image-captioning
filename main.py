@@ -1,5 +1,5 @@
-from Decoder import Decoder
-from Encoder import Encoder
+from decoder import Decoder
+from encoder import Encoder
 from evaluate_captions import evaluate_captions
 from runner import Runner
 from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
