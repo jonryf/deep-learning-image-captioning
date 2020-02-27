@@ -78,7 +78,9 @@ class Decoder(nn.Module):
 
         tokenized_captions = torch.stack(captions, 1)
         _, indices = torch.max(tokenized_captions, 1)
-        for sentence_ids in indices:
-            for word_id in sentence_ids:
-                pass
+        print(indices.size())
+        print(indices)
+        #for sentence_ids in indices:
+        #    for word_id in sentence_ids:
+        #        pass
 

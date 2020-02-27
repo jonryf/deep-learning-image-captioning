@@ -51,7 +51,7 @@ class CocoDataset(data.Dataset):
         caption.extend([vocab(token) for token in tokens])
         caption.append(vocab('<end>'))
         target = torch.Tensor(caption)
-        return image, target
+        return image, target, img_id
 
     def __len__(self):
         return len(self.ids)
