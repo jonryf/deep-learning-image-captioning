@@ -57,11 +57,11 @@ class Decoder(nn.Module):
         # Decode the encoded captions
         return self.linear(self.hidden.data)
 
-    def create_captions(self, features, max_length):
+    def create_captions(self, features, max_length, vocab):
         captions = []
         states = None
         for i in range(max_length):
-            features = features.squeeze(1)
+            features = features.unsqueeze(1)
             features, states = self.rnn_cell(features, states)
 
             # decode embedding
@@ -77,10 +77,9 @@ class Decoder(nn.Module):
             features = self.embedding(features)
 
         tokenized_captions = torch.stack(captions, 1)
-        _, indices = torch.max(tokenized_captions, 1)
-        print(indices.size())
-        print(indices)
-        #for sentence_ids in indices:
-        #    for word_id in sentence_ids:
-        #        pass
+
+        captions_words = []
+        for sentence_ids in tokenized_captions:
+            captions_words.append([vocab.getWordForIndex(word_id.item()) for word_id in sentence_ids])
+        return captions_words
 

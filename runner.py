@@ -1,11 +1,14 @@
 import json
+import os
 
+import numpy as np
 import torch
 
 from torch.nn import NLLLoss, CrossEntropyLoss
 from torch.optim import Adam
 
-from settings import EPOCHS
+from evaluate_captions import evaluate_captions
+from settings import EPOCHS, CAPTIONS_DIR
 from torch.nn.utils.rnn import pack_padded_sequence
 from tqdm import tqdm
 
@@ -33,19 +36,25 @@ class Runner:
         self.training_data = []
         self.caption_results = []
         params = list(self.decoder.parameters()) + list(self.encoder.parameters())
-        self.optimizer = Adam(params)
+        self.optimizer = Adam(params, lr=0.0005)
 
     def train(self):
         """
         Train the network
         """
-        for epoch in tqdm(range(EPOCHS)):
+        for epoch in range(EPOCHS):
+            print("Running epoch {}".format(epoch + 1))
             train_loss = self.pass_data(self.train_dataset, True)
-            val_loss = self.pass_data(self.val_dataset, False)
+            val_loss = self.val()
 
             self.training_data.append([train_loss, val_loss])
 
-            print("Epoch: {}  -  training loss: {}, validation loss: {}".format(epoch, train_loss, val_loss))
+            print("Epoch: {}  -  training loss: {}, validation loss: {}".format((epoch + 1), train_loss, val_loss))
+
+        print("Running tests")
+        bleu1, bleu4, test_loss = self.test()
+        print("\n --- Test scores ---  \nBleu 1:     {} \nBleu4:      {} \nLoss:       {} \nPerplexity: {}"
+              .format(bleu1, bleu4, test_loss, np.exp(test_loss)))
 
         plot_training_data(self.training_data)
 
@@ -65,23 +74,29 @@ class Runner:
         :return: loss
         """
         with torch.no_grad():
-            return self.pass_data(self.test_dataset, False)
+            return self.pass_data(self.test_dataset, False, True)
 
     def store_captions(self, captions, image_ids):
         for caption, image_id in zip(captions, image_ids):
             image_prediction = {"image_id": image_id, "caption": caption}
             self.caption_results.append(image_prediction)
 
-    def save_captions(self, file_name="basline_lstm_captions.json"):
+    def save_captions(self, file_name="baseline_lstm_captions.json"):
+        try:
+            os.remove(file_name)
+        except OSError:
+            pass
+
         with open(file_name, 'w') as file:
             json.dump(self.caption_results, file)
 
-    def pass_data(self, dataset, backward, bleu):
+    def pass_data(self, dataset, backward, bleu=False):
         """
         Combined loop for training and data prediction, returns loss.
 
         :param dataset: dataset to do data passing from
         :param backward: if backward propagation should be used
+        :param bleu:
         :return: loss
         """
         if backward:
@@ -92,8 +107,7 @@ class Runner:
             self.decoder.eval()
         loss = 0
 
-        captions = []
-        for minibatch, (images, captions, img_ids, lengths) in tqdm(enumerate(dataset)):
+        for minibatch, (images, captions, img_ids, lengths) in tqdm(enumerate(dataset), total=len(dataset)):
             computing_device = get_device()
             images = images.to(computing_device)
             captions = captions.to(computing_device)
@@ -101,7 +115,9 @@ class Runner:
             # forward
             encoded = self.encoder(images)
             predicted = self.decoder(encoded, captions, lengths)
-
+            if bleu:
+                self.store_captions(self.decoder.create_captions(encoded, 25, self.train_dataset.dataset.vocab),
+                                    img_ids)
             # predicted = self.decoder.predict(encoded)
             batch_loss = self.criterion(predicted, targets)
             # backward
@@ -110,13 +126,13 @@ class Runner:
                 self.decoder.zero_grad()
                 batch_loss.backward()
                 self.optimizer.step()
-            if bleu:
-                self.store_captions(self.decoder.create_captions(encoded, 25), img_ids)
 
             loss += batch_loss.item()
         loss /= minibatch
 
         if bleu:
             self.save_captions()
+            bleu1, bleu4 = evaluate_captions(CAPTIONS_DIR + '/captions_val2014.json', 'baseline_lstm_captions.json')
+            return bleu1, bleu4, loss
 
         return loss

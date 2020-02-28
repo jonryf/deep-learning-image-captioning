@@ -9,7 +9,7 @@ from pycocotools.coco import COCO
 from wordDict import *
 from settings import CAPTIONS_DIR, IMAGES_DIR, NUM_WORKERS, SHUFFLE_DATA, BATCH_SIZE, VALIDATION_SIZE, TEMPERATURE
 
-TrainingJsonPath = IMAGES_DIR + "/train/", CAPTIONS_DIR + "/captions_train2014.json"
+TrainingJsonPath = CAPTIONS_DIR + "/captions_train2014.json"
 
 class CocoDataset(data.Dataset):
     """COCO Custom Dataset compatible with torch.utils.data.DataLoader."""
@@ -53,6 +53,7 @@ class CocoDataset(data.Dataset):
         caption.extend([vocab(token) for token in tokens])
         caption.append(vocab('<end>'))
         target = torch.Tensor(caption)
+
         return image, target, img_id
 
     def __len__(self):
@@ -77,10 +78,12 @@ def collate_fn(data):
     """
     # Sort a data list by caption length (descending order).
     data.sort(key=lambda x: len(x[1]), reverse=True)
-    images, captions = zip(*data)
+    images, captions, img_ids = zip(*data)
 
     # Merge images (from tuple of 3D tensor to 4D tensor).
     images = torch.stack(images, 0)
+
+    #img_ids = torch.stack(img_ids, 0)
 
     # Merge captions (from tuple of 1D tensor to 2D tensor).
     lengths = [len(cap) for cap in captions]
@@ -88,7 +91,7 @@ def collate_fn(data):
     for i, cap in enumerate(captions):
         end = lengths[i]
         targets[i, :end] = cap[:end]
-    return images, targets, lengths
+    return images, targets, img_ids, lengths
 
 
 def get_loader(root, json, ids, batch_size, shuffle, num_workers):

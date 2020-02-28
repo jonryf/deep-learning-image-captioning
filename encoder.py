@@ -16,8 +16,6 @@ class Encoder(nn.Module):
 
         self.mod.fc = nn.Linear(2048, linear_layer_size)
 
-        for param in self.mod.parameters():
-            print(param.requires_grad)
         self.batch_norm = nn.BatchNorm1d(linear_layer_size, momentum=0.01)
 
     def forward(self, images):

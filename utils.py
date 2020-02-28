@@ -2,6 +2,7 @@ import numpy as np
 import pandas
 import torch
 import matplotlib.pyplot as plt
+import pickle
 
 from pycocotools.coco import COCO
 
@@ -26,6 +27,7 @@ def softmax(x, temp=TEMPERATURE):
     sM[torch.where(sM == 1)] = 0.9999999
     return sM
 
+
 # draw one sample from distribution defined by rows in x
 # if deterministic then returns max prob idx
 def sample_from_distribution(x, deterministic=True):
@@ -35,6 +37,7 @@ def sample_from_distribution(x, deterministic=True):
 
     sampler = torch.distributions.categorical.Categorical(probs=x)
     return sampler.sample()
+
 
 def plot_graph(data, labels, legends, title):
     """
@@ -89,12 +92,23 @@ def select_ann_ids(ids, path):
     :param path: annotation file
     :return: annotation ids
     """
+    file_name = path + str(len(ids)) + ".p"
+    try:
+        f = open(file_name, "rb")
+        ret = pickle.load(f)
+        print("Loaded annotation ids from file %s" % file_name)
+        return ret
+    except:
+        print("Could not load annotation ids from file %s. Filtering" % file_name)
+
     coco = COCO(CAPTIONS_DIR + path)
     filtered = []
     for ann_id in coco.anns:
         ann = coco.anns[ann_id]
         if ann['image_id'] in ids:
             filtered.append(ann_id)
+    f = open(file_name, "wb")
+    pickle.dump(filtered, f)
     return filtered
 
 
@@ -118,7 +132,7 @@ def load_datasets():
     val_dataset = get_loader(IMAGES_DIR + "/train/", CAPTIONS_DIR + "/captions_train2014.json", validation_ids,
                              BATCH_SIZE, SHUFFLE_DATA,
                              NUM_WORKERS)
-    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/captions_val2014.json", testing_ids, BATCH_SIZE,
-                              SHUFFLE_DATA,
+    test_dataset = get_loader(IMAGES_DIR + "/test/", CAPTIONS_DIR + "/captions_val2014.json", testing_ids,
+                              BATCH_SIZE, SHUFFLE_DATA,
                               NUM_WORKERS)
     return train_dataset, val_dataset, test_dataset
