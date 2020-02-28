@@ -3,7 +3,7 @@ from encoder import Encoder
 from Embedding import getPreTrainedEmbeddingRunner
 from evaluate_captions import evaluate_captions
 from runner import Runner
-from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
+from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE, TASK_NAME
 from utils import load_datasets, get_device
 from glove import loadGlove
 
@@ -30,10 +30,23 @@ def show_options():
     print("(q): quit program")
 
 
-def task_4_1():
+def task_4_1_lstm():
     """
-    Training and validation loss for LSTM and Vanilla RNN
+    Training and validation loss for LSTM
     """
+    global TASK_NAME; TASK_NAME = "Task 4-1 lstm"
+    global LSTM; LSTM = True
+
+    run_network()
+
+
+def task_4_1_rnn():
+    """
+    Training and validation loss for Vanilla RNN
+    """
+    global TASK_NAME; TASK_NAME = "Task 4-1 rnn"
+    global LSTM; LSTM = False
+
     run_network()
 
 
@@ -77,7 +90,6 @@ def task_4_5():  # Pre-trained word embeddings
     runner.train()
 
 
-
 if __name__ == "__main__":
 
     show_options()
@@ -86,8 +98,10 @@ if __name__ == "__main__":
         i = input("Please select your task: ")
         i = i.lower()
 
-        if i == "1":
-            task_4_1()
+        if i == "1i":
+            task_4_1_lstm()
+        if i == "1ii":
+            task_4_1_rnn()
 
         elif i == "2":
             task_4_2()

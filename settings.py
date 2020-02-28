@@ -1,4 +1,4 @@
-EPOCHS = 50  # Number of epochs
+EPOCHS = 40  # Number of epochs
 BATCH_SIZE = 200
 SHUFFLE_DATA = True
 NUM_WORKERS = 6
@@ -12,4 +12,4 @@ IMAGES_DIR = "./data/images/"  # Location for images
 CAPTIONS_DIR = "./data/annotations/"  # Location for annotation files
 VALIDATION_SIZE = 0.2
 
-
+TASK_NAME = ""

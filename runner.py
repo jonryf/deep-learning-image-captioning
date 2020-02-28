@@ -8,7 +8,7 @@ from torch.nn import NLLLoss, CrossEntropyLoss
 from torch.optim import Adam
 
 from evaluate_captions import evaluate_captions
-from settings import EPOCHS, CAPTIONS_DIR
+from settings import EPOCHS, CAPTIONS_DIR, TASK_NAME
 from torch.nn.utils.rnn import pack_padded_sequence
 from tqdm import tqdm
 
@@ -50,6 +50,11 @@ class Runner:
             self.training_data.append([train_loss, val_loss])
 
             print("Epoch: {}  -  training loss: {}, validation loss: {}".format((epoch + 1), train_loss, val_loss))
+            if epoch % 5:
+                torch.save(self.encoder, ("Encoder {} - epoch {}".format(TASK_NAME, epoch)))
+                torch.save(self.encoder, ("Decoder {} - epoch {}".format(TASK_NAME, epoch)))
+                with open("scores {} {}.json".format(TASK_NAME, epoch), 'w') as file:
+                    json.dump(self.training_data, file)
 
         print("Running tests")
         bleu1, bleu4, test_loss = self.test()
