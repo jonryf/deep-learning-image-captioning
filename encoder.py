@@ -15,7 +15,6 @@ class Encoder(nn.Module):
             param.requires_grad = False
 
         self.mod.fc = nn.Linear(2048, linear_layer_size)
-
         self.batch_norm = nn.BatchNorm1d(linear_layer_size, momentum=0.01)
 
     def forward(self, images):
