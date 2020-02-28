@@ -1,9 +1,11 @@
 from Decoder import Decoder
 from Encoder import Encoder
+from Embedding import getPreTrainedEmbeddingRunner
 from evaluate_captions import evaluate_captions
 from runner import Runner
 from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
 from utils import load_datasets, get_device
+from glove import loadGlove
 
 
 def run_network():
@@ -71,7 +73,9 @@ def task_4_4():
 
 
 def task_4_5():  # Pre-trained word embeddings
-    pass
+    runner = getPreTrainedEmbeddingRunner()
+    runner.train()
+
 
 
 if __name__ == "__main__":
