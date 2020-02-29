@@ -80,6 +80,16 @@ class Decoder(nn.Module):
 
         captions_words = []
         for sentence_ids in tokenized_captions:
-            captions_words.append([vocab.getWordForIndex(word_id.item()) for word_id in sentence_ids])
+            sentence = []
+            for word_id in sentence_ids:
+                word = vocab.getWordForIndex(word_id.item())
+                if word == '<start>':
+                    continue
+                elif word == '<end>':
+                    break
+
+                sentence.append(word)
+
+            captions_words.append(sentence)
         return captions_words
 

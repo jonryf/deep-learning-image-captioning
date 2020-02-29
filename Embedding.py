@@ -1,6 +1,6 @@
 
-from Decoder import Decoder
-from Encoder import Encoder
+from decoder import Decoder
+from encoder import Encoder
 from runner import Runner
 from settings import LSTM_HIDDEN_SIZE, EMBEDDED_SIZE
 from utils import load_datasets, get_device

@@ -4,7 +4,7 @@ import os
 import numpy as np
 import torch
 
-from torch.nn import NLLLoss, CrossEntropyLoss
+from torch.nn import CrossEntropyLoss
 from torch.optim import Adam
 
 from evaluate_captions import evaluate_captions
@@ -36,7 +36,7 @@ class Runner:
         self.training_data = []
         self.caption_results = []
         params = list(self.decoder.parameters()) + list(self.encoder.parameters())
-        self.optimizer = Adam(params, lr=0.0005)
+        self.optimizer = Adam(params, lr=0.00005)
 
     def train(self):
         """
@@ -50,11 +50,10 @@ class Runner:
             self.training_data.append([train_loss, val_loss])
 
             print("Epoch: {}  -  training loss: {}, validation loss: {}".format((epoch + 1), train_loss, val_loss))
-            if epoch % 5:
-                torch.save(self.encoder, ("Encoder {} - epoch {}".format(TASK_NAME, epoch)))
-                torch.save(self.encoder, ("Decoder {} - epoch {}".format(TASK_NAME, epoch)))
-                with open("scores {} {}.json".format(TASK_NAME, epoch), 'w') as file:
-                    json.dump(self.training_data, file)
+            torch.save(self.encoder, ("Encoder {} - epoch {}".format(TASK_NAME, epoch)))
+            torch.save(self.decoder, ("Decoder {} - epoch {}".format(TASK_NAME, epoch)))
+            with open("scores {}.json".format(TASK_NAME), 'w') as file:
+                json.dump(self.training_data, file)
 
         print("Running tests")
         bleu1, bleu4, test_loss = self.test()
@@ -123,7 +122,6 @@ class Runner:
             if bleu:
                 self.store_captions(self.decoder.create_captions(encoded, 25, self.train_dataset.dataset.vocab),
                                     img_ids)
-            # predicted = self.decoder.predict(encoded)
             batch_loss = self.criterion(predicted, targets)
             # backward
             if backward:
