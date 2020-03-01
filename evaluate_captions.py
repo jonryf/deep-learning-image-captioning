@@ -25,11 +25,14 @@ def evaluate_captions(true_captions_path, generated_captions_path):
     for i in tqdm(cocoRes.getImgIds()):
         candidate = cocoRes.imgToAnns[i][0]['caption']
         reference = []
-        for entry in coco.imgToAnns[i]:
-            reference.append(entry['caption'])
 
+        for entry in coco.imgToAnns[i]:
+            no_period = entry['caption'].replace(".", "")
+            broken = no_period.split(" ")
+            reference.append(broken)
+         
         score1 += sentence_bleu(reference, candidate, weights=(1, 0, 0, 0), smoothing_function=smoother.method1)
-        score4 += sentence_bleu(reference, candidate, weights=(0, 0, 0, 1), smoothing_function=smoother.method1)
+        score4 += sentence_bleu(reference, candidate, smoothing_function=smoother.method1)
 
     bleu1 = 100 * score1 / len(cocoRes.getImgIds())
     bleu4 = 100 * score4 / len(cocoRes.getImgIds())

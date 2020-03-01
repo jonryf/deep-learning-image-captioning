@@ -46,7 +46,7 @@ def getPreTrainedEmbeddingRunner():
     #glove_weights = torch.tensor(glove_weights).to(computing_device)
 
     embed_layer.load_state_dict({'weight': torch.tensor(glove_weights)})
-
+    embed_layer.weight.requires_grad = False
     decoder.embedding = embed_layer
 
     runner = Runner(encoder, decoder, train_dataset, val_dataset, test_dataset)
